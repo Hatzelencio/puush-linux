@@ -3,9 +3,8 @@
 PUUSH_API_KEY=""
 
 # Puush for Ubuntu/linux
-# Owner : Sunmock Yang
-# www.sunmock.com
-# May 2014
+# Owner   : Sunmock Yang
+# Edit by : Hatzel Rentería
 #
 # Dependencies:
 # - gnome-screenshot
@@ -64,6 +63,7 @@ function helpText ()
   printf "OPTIONS:\n"
   printf "  -a                 puush entire desktop\n"
   printf "  -b                 select area to puush\n"
+  printf "  -bl                select area and save\n"
   printf "  -c                 puush current window\n"
   printf "  -d                 puush specific file (opens file dialog)\n"
   printf "\n"
@@ -73,8 +73,16 @@ function helpText ()
   printf "  PATH               optional: path of file to puush\n"
 }
 
-function generateFileName () { echo "/tmp/puush-linux ($(date +"%Y-%m-%d at %I.%M.%S")).png"; }
+function generateFileName () {
 
+	filePath="/tmp/";
+
+	if [ ! -z "$1" ]; then
+		filePath="$1";
+	fi
+
+	echo "$filePath""puush-linux ($(date +"%Y-%m-%d at %I.%M.%S")).png";
+}
 
 if [ -z "$PUUSH_API_KEY" ]; then
   echo "Set the variable PUUSH_API_KEY in $0"
@@ -107,6 +115,18 @@ case "$1" in
 			puushFile "$fileName"
 		;;
 
+	-bl)
+		echo "Area Local"
+			directory="$HOME/stored-puush/"
+
+			if [ ! -d "$directory" ]; then
+				mkdir -p "$directory"
+			fi
+
+			fileName=$(generateFileName $directory)
+			gnome-screenshot -a -f "$fileName"
+		;;
+
 	-c)
 		echo "Window"
 			fileName=$(generateFileName)
@@ -124,10 +144,10 @@ case "$1" in
 		helpText
 		exit 0
 		;;
-		
+
 	*)
 		echo "Upload $1"
 			puushFile "$1"
 		;;
-		
+
 esac
